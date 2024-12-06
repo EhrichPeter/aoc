@@ -84,9 +84,7 @@ func main() {
 
 	validReportCounter := 0
 	for _, row := range parsedArray {
-		if rowIsSortedAscending(row) && checkAdjacentLevels(row) {
-			validReportCounter++
-		} else if rowIsSortedDescending(row) && checkAdjacentLevels(row) {
+		if checkAdjacentLevels(row) && (rowIsSortedAscending(row) || rowIsSortedDescending(row)) {
 			validReportCounter++
 		}
 	}
