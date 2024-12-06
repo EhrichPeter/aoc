@@ -17,14 +17,28 @@ func main() {
 	}
 	stringContent := string(content)
 	stringContent = strings.TrimSpace(stringContent)
+	stringContent = strings.ReplaceAll(stringContent, "\r\n", "")
+	stringContent = strings.ReplaceAll(stringContent, "\n", "")
 
 	mulPattern := `mul\((\d+),(\d+)\)`
 	doPattern := `do\(\)`
 	dontPattern := `don't\(\)`
 
-	combinedPattern := fmt.Sprintf(`%s.*?%s`, doPattern, dontPattern)
+	combinedPattern := fmt.Sprintf(`%s|%s|%s`, doPattern, dontPattern, mulPattern)
 
-	mulRe, err := regexp.Compile(mulPattern)
+	re, err := regexp.Compile(combinedPattern)
+	if err != nil {
+		fmt.Println("Error compiling regex:", err)
+		return
+	}
+
+	mutlRe, err := regexp.Compile(mulPattern)
+	if err != nil {
+		fmt.Println("Error compiling regex:", err)
+		return
+	}
+
+	doRe, err := regexp.Compile(doPattern)
 	if err != nil {
 		fmt.Println("Error compiling regex:", err)
 		return
@@ -36,44 +50,20 @@ func main() {
 		return
 	}
 
-	combinedRe, err := regexp.Compile(combinedPattern)
-	if err != nil {
-		fmt.Println("Error compiling regex:", err)
-		return
-	}
-
-	firstDontMatch := dontRe.FindStringIndex(stringContent)
-	if firstDontMatch == nil {
-		fmt.Println("No 'don't()' found in the content")
-		return
-	}
-
-	// Split the string at the first occurrence of "don't()"
-	beforeFirstDont := stringContent[:firstDontMatch[0]]
-	afterFirstDont := stringContent[firstDontMatch[1]:]
+	matches := re.FindAllStringSubmatch(stringContent, -1)
 
 	var result int
-	startMatches := mulRe.FindAllStringSubmatch(beforeFirstDont, -1)
-	for _, match := range startMatches {
-		num1, err := strconv.Atoi(match[1])
-		if err != nil {
-			fmt.Println("Error converting string to int:", err)
-			return
-		}
+	multEnabled := true
 
-		num2, err := strconv.Atoi(match[2])
-		if err != nil {
-			fmt.Println("Error converting string to int:", err)
-			return
-		}
-
-		result += num1 * num2
-	}
-
-	allSections := combinedRe.Split(afterFirstDont, -1)
-	for _, section := range allSections {
-		remainingMatches := mulRe.FindAllStringSubmatch(section, -1)
-		for _, match := range remainingMatches {
+	for _, match := range matches {
+		if doRe.MatchString(match[0]) {
+			multEnabled = true
+			fmt.Println("do")
+		} else if dontRe.MatchString(match[0]) {
+			multEnabled = false
+			fmt.Println("dont")
+		} else if mutlRe.MatchString(match[0]) && multEnabled {
+			fmt.Println("mul", match[1], match[2])
 			num1, err := strconv.Atoi(match[1])
 			if err != nil {
 				fmt.Println("Error converting string to int:", err)
@@ -88,7 +78,8 @@ func main() {
 
 			result += num1 * num2
 		}
+
 	}
 
-	fmt.Println("Result:", result)
+	fmt.Println(result)
 }
