@@ -19,7 +19,7 @@ func main() {
 
 	validReportCounter := 0
 	for _, row := range matrix {
-		if day2.CheckAdjacentLevels(row) && (utils.RowIsSortedAscending(row) || utils.RowIsSortedDescending(row)) {
+		if day2.CheckValidReport(row) {
 			validReportCounter++
 		}
 	}

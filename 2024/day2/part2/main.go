@@ -2,22 +2,10 @@ package main
 
 import (
 	"fmt"
-	"math"
 
 	"github.com/ehrichpeter/aoc/2024/day2"
 	"github.com/ehrichpeter/aoc/2024/utils"
 )
-
-func checkAdjacentLevels(row []int) bool {
-	for i := 0; i < len(row)-1; i++ {
-		adjacentDistance := int(math.Abs(float64(row[i] - row[i+1])))
-
-		if adjacentDistance < 1 || adjacentDistance > 3 {
-			return false
-		}
-	}
-	return true
-}
 
 func main() {
 	file := "input.txt"
@@ -30,9 +18,16 @@ func main() {
 	matrix := utils.ParseLines(lines, " ")
 
 	validReportCounter := 0
+
+OuterLoop:
 	for _, row := range matrix {
-		if day2.CheckAdjacentLevels(row) && (utils.RowIsSortedAscending(row) || utils.RowIsSortedDescending(row)) {
-			validReportCounter++
+		for i := range row {
+			modifiedRow := append([]int{}, row[:i]...)
+			modifiedRow = append(modifiedRow, row[i+1:]...)
+			if day2.CheckValidReport(modifiedRow) {
+				validReportCounter++
+				continue OuterLoop
+			}
 		}
 	}
 

@@ -1,6 +1,10 @@
 package day2
 
-import "math"
+import (
+	"math"
+
+	"github.com/ehrichpeter/aoc/2024/utils"
+)
 
 func CheckAdjacentLevels(row []int) bool {
 	for i := 0; i < len(row)-1; i++ {
@@ -11,4 +15,8 @@ func CheckAdjacentLevels(row []int) bool {
 		}
 	}
 	return true
+}
+
+func CheckValidReport(row []int) bool {
+	return (utils.RowIsSortedAscending(row) || utils.RowIsSortedDescending(row)) && CheckAdjacentLevels(row)
 }
