@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/ehrichpeter/aoc/2024/day2"
 	"github.com/ehrichpeter/aoc/2024/utils"
 )
 
