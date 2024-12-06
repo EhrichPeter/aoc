@@ -15,23 +15,17 @@ func main() {
 	}
 
 	matrix := utils.ParseLines(lines, "   ")
-	coloumns := utils.RowsToColumns(matrix, 2)
+	columns := utils.RowsToColumns(matrix, 2)
 
-	var similarity []int
-	for _, num := range coloumns[0] {
-		var counter int
-		for _, num2 := range coloumns[1] {
-			if num == num2 {
-				counter++
-			}
-		}
-		similarity = append(similarity, counter*num)
+	var occurences = make(map[int]int)
+	for _, num := range columns[1] {
+		occurences[num]++
 	}
 
-	var result int
-	for _, num := range similarity {
-		result += num
+	var similarity int
+	for _, num := range columns[0] {
+		similarity += num * occurences[num]
 	}
 
-	fmt.Println(result)
+	fmt.Println(similarity)
 }

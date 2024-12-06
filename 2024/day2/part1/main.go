@@ -15,10 +15,10 @@ func main() {
 		return
 	}
 
-	parsedArray := utils.ParseLines(lines, " ")
+	matrix := utils.ParseLines(lines, " ")
 
 	validReportCounter := 0
-	for _, row := range parsedArray {
+	for _, row := range matrix {
 		if day2.CheckAdjacentLevels(row) && (utils.RowIsSortedAscending(row) || utils.RowIsSortedDescending(row)) {
 			validReportCounter++
 		}

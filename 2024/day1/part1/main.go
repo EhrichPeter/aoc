@@ -17,14 +17,14 @@ func main() {
 	}
 
 	matrix := utils.ParseLines(lines, "   ")
-	coloumns := utils.RowsToColumns(matrix, 2)
+	columns := utils.RowsToColumns(matrix, 2)
 
-	slices.Sort(coloumns[0])
-	slices.Sort(coloumns[1])
+	slices.Sort(columns[0])
+	slices.Sort(columns[1])
 
 	var distances []int
-	for i, num := range coloumns[0] {
-		distances = append(distances, int(math.Abs(float64(num-coloumns[1][i]))))
+	for i, num := range columns[0] {
+		distances = append(distances, int(math.Abs(float64(num-columns[1][i]))))
 	}
 
 	var result int

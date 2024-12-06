@@ -27,15 +27,15 @@ func ParseLines(lines []string, splitOperator string) [][]int {
 }
 
 func RowsToColumns(arr [][]int, n int) [][]int {
-	coloumns := make([][]int, n)
+	columns := make([][]int, n)
 
 	for _, row := range arr {
 		for j, num := range row {
-			coloumns[j] = append(coloumns[j], num)
+			columns[j] = append(columns[j], num)
 		}
 	}
 
-	return coloumns
+	return columns
 }
 
 func RowIsSortedAscending(row []int) bool {
