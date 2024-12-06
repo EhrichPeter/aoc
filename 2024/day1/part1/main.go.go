@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"math"
+	"slices"
 
-	"github.com/ehrichpeter/aoc/utils"
+	"github.com/ehrichpeter/aoc/2024/utils"
 )
 
 func main() {
@@ -17,19 +19,16 @@ func main() {
 	matrix := utils.ParseLines(lines, "   ")
 	coloumns := utils.RowsToColumns(matrix, 2)
 
-	var similarity []int
-	for _, num := range coloumns[0] {
-		var counter int
-		for _, num2 := range coloumns[1] {
-			if num == num2 {
-				counter++
-			}
-		}
-		similarity = append(similarity, counter*num)
+	slices.Sort(coloumns[0])
+	slices.Sort(coloumns[1])
+
+	var distances []int
+	for i, num := range coloumns[0] {
+		distances = append(distances, int(math.Abs(float64(num-coloumns[1][i]))))
 	}
 
 	var result int
-	for _, num := range similarity {
+	for _, num := range distances {
 		result += num
 	}
 

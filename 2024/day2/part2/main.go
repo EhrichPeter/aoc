@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/ehrichpeter/aoc/2024/day2"
 	"github.com/ehrichpeter/aoc/2024/utils"
 )
 
-func CheckAdjacentLevels(row []int) bool {
+func checkAdjacentLevels(row []int) bool {
 	for i := 0; i < len(row)-1; i++ {
 		adjacentDistance := int(math.Abs(float64(row[i] - row[i+1])))
 
@@ -30,7 +31,7 @@ func main() {
 
 	validReportCounter := 0
 	for _, row := range parsedArray {
-		if CheckAdjacentLevels() && (utils.RowIsSortedAscending(row) || utils.RowIsSortedDescending(row)) {
+		if day2.CheckAdjacentLevels(row) && (utils.RowIsSortedAscending(row) || utils.RowIsSortedDescending(row)) {
 			validReportCounter++
 		}
 	}
