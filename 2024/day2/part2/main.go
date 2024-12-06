@@ -21,6 +21,12 @@ func main() {
 
 OuterLoop:
 	for _, row := range matrix {
+
+		if day2.CheckValidReport(row) {
+			validReportCounter++
+			continue
+		}
+
 		for i := range row {
 			modifiedRow := append([]int{}, row[:i]...)
 			modifiedRow = append(modifiedRow, row[i+1:]...)
