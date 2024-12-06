@@ -1,112 +1,65 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
-	"strings"
 )
 
 var REFERENCE_STRING = "XMAS"
 var WINDOW_LENGTH = len(REFERENCE_STRING)
 
-func slideOver(input string) int {
-	var hits int
-	for i := 0; i < len(input)-WINDOW_LENGTH; i++ {
-		if input[i:i+WINDOW_LENGTH] == REFERENCE_STRING {
-			hits++
-		}
-	}
-	return hits
-}
-
-func traverseHorizontalForward(rows []string) int {
-	copyRows := make([]string, len(rows))
-	copy(copyRows, rows)
-
-	var hits int
-	for _, row := range reverseRows(copyRows) {
-		hits += slideOver(row)
-	}
-	return hits
-}
-
-func traverseHorizontalBackward(rows []string) int {
-	copyRows := make([]string, len(rows))
-	copy(copyRows, rows)
-
-	var hits int
-	for _, row := range copyRows {
-		hits += slideOver(row)
-	}
-	return hits
-}
-
-func traverseVerticalForward(rows []string) int {
-	copyRows := make([]string, len(rows))
-	copy(copyRows, rows)
-
-	var hits int
-	for i := 0; i < len(copyRows[0]); i++ {
-		var column string
-		for _, row := range copyRows {
-			column += string(row[i])
-		}
-		hits += slideOver(column)
-	}
-	return hits
-}
-
-func traverseVerticalBackward(rows []string) int {
-	copyRows := make([]string, len(rows))
-	copy(copyRows, rows)
-
-	var hits int
-	for i := 0; i < len(copyRows[0]); i++ {
-		var column string
-		for _, row := range reverseRows(copyRows) {
-			column += string(row[i])
-		}
-		hits += slideOver(column)
-	}
-	return hits
-}
-
-func reverseString(s string) string {
-	runes := []rune(s)
-	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
-		runes[i], runes[j] = runes[j], runes[i]
-	}
-	return string(runes)
-}
-
-func reverseRows(rows []string) []string {
-	var reversedRows []string
-	for _, row := range rows {
-
-		reversedRows = append([]string{reverseString(row)}, reversedRows...)
-	}
-	return reversedRows
-}
-
-func main() {
-
-	file, err := os.ReadFile("input.txt")
+func readGrid(filename string) [][]rune {
+	file, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer file.Close()
 
-	rows := strings.Split(string(file), "\n")
+	var grid [][]rune
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		grid = append(grid, []rune(line))
+	}
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+	return grid
+}
 
-	thfHits := traverseHorizontalForward(rows)
-	fmt.Println("Hits with traverseHorizontalForward:", thfHits)
+var directions = [][2]int{
+	{0, 1}, {1, 0}, {1, 1}, {1, -1}, // right, down, diagonal down-right, diagonal down-left
+	{0, -1}, {-1, 0}, {-1, -1}, {-1, 1}, // left, up, diagonal up-left, diagonal up-right
+}
 
-	thbHits := traverseHorizontalBackward(rows)
-	fmt.Println("Hits with traverseHorizontalBackward:", thbHits)
+func checkWord(grid [][]rune, x, y int, dir [2]int) bool {
+	for k := 0; k < WINDOW_LENGTH; k++ {
+		nx, ny := x+k*dir[0], y+k*dir[1]
+		if nx < 0 || ny < 0 || nx >= len(grid) || ny >= len(grid[0]) || grid[nx][ny] != rune(REFERENCE_STRING[k]) {
+			return false
+		}
+	}
+	return true
+}
 
-	tvfHits := traverseVerticalForward(rows)
-	fmt.Println("Hits with traverseVerticalForward:", tvfHits)
+func countXMAS(grid [][]rune) int {
+	count := 0
+	for i := 0; i < len(grid); i++ {
+		for j := 0; j < len(grid[i]); j++ {
+			for _, dir := range directions {
+				if checkWord(grid, i, j, dir) {
+					count++
+				}
+			}
+		}
+	}
+	return count
+}
 
-	tvbHits := traverseVerticalBackward(rows)
-	fmt.Println("Hits with traverseVerticalBackward:", tvbHits)
+func main() {
+	grid := readGrid("input.txt")
+	result := countXMAS(grid)
+	fmt.Println(result)
 }
