@@ -7,26 +7,26 @@ import (
 	"strings"
 )
 
-func ParseLines(lines []string, splitOperator string) [][]int {
-	var parseResult [][]int
+func ParseLines[T any](lines []string, splitOperator string, parseFunc func(string) (T, error)) [][]T {
+	var parseResult [][]T
 	for _, line := range lines {
-		stringNumbers := strings.Split(line, splitOperator)
-		arr := make([]int, len(stringNumbers))
+		stringElements := strings.Split(line, splitOperator)
+		arr := make([]T, len(stringElements))
 
-		for j, element := range stringNumbers {
-			num, err := strconv.Atoi(element)
+		for j, element := range stringElements {
+			parsedElement, err := parseFunc(element)
 			if err != nil {
-				fmt.Println("Error converting string to int:", err)
+				fmt.Println("Error parsing element:", err)
 				continue
 			}
-			arr[j] = num
+			arr[j] = parsedElement
 		}
 		parseResult = append(parseResult, arr)
 	}
 	return parseResult
 }
 
-func RowsToColumns(arr [][]int, n int) [][]int {
+func RowsToColumns(arr [][], n int) [][]int {
 	columns := make([][]int, n)
 
 	for _, row := range arr {

@@ -32,7 +32,7 @@ func main() {
 		return
 	}
 
-	mutlRe, err := regexp.Compile(mulPattern)
+	multRe, err := regexp.Compile(mulPattern)
 	if err != nil {
 		fmt.Println("Error compiling regex:", err)
 		return
@@ -58,12 +58,9 @@ func main() {
 	for _, match := range matches {
 		if doRe.MatchString(match[0]) {
 			multEnabled = true
-			fmt.Println("do")
 		} else if dontRe.MatchString(match[0]) {
 			multEnabled = false
-			fmt.Println("dont")
-		} else if mutlRe.MatchString(match[0]) && multEnabled {
-			fmt.Println("mul", match[1], match[2])
+		} else if multRe.MatchString(match[0]) && multEnabled {
 			num1, err := strconv.Atoi(match[1])
 			if err != nil {
 				fmt.Println("Error converting string to int:", err)
