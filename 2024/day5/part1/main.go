@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"slices"
 	"strconv"
 )
 
@@ -60,6 +61,17 @@ func generateRuleMap(rules [][]int) map[int][]int {
 	return ruleMap
 }
 
+func validateElement(before []int, number int, ruleMap map[int][]int) bool {
+	mustBeAfter := ruleMap[number]
+
+	for _, el := range before {
+		if slices.Contains(mustBeAfter, el) {
+			return false
+		}
+	}
+	return true
+}
+
 func main() {
 	file, err := os.ReadFile("input.txt")
 	if err != nil {
@@ -68,13 +80,21 @@ func main() {
 	content := string(file)
 
 	rules := getPageOrderingRules(content)
-	ruleMap := generateRuleMap(rules)
-	fmt.Println(ruleMap)
-
 	updates := getUpdates(content)
+	ruleMap := generateRuleMap(rules)
 
+	var result int
+
+Outerloop:
 	for _, update := range updates {
-		fmt.Println(update)
+		for j, number := range update {
+			if !validateElement(update[:j], number, ruleMap) {
+				continue Outerloop
+			}
+		}
+		result += update[(len(update)-1)/2]
 	}
+
+	fmt.Println(result)
 
 }
