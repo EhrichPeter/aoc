@@ -73,7 +73,7 @@ func checkCross(grid [][]rune, x int, y int) bool {
 func countXMAS(grid [][]rune) int {
 	count := 0
 
-	results := make(chan bool)
+	results := make(chan bool, len(grid)*len(grid[0]))
 	var wg sync.WaitGroup
 
 	for i, row := range grid {
