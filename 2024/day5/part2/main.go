@@ -112,25 +112,36 @@ func (g *RuleGraph) SubGraph(nodes []int) *RuleGraph {
 	return subgraph
 }
 
-func (g *RuleGraph) isValidUpdateOrder() bool {
+func (g *RuleGraph) isValidUpdate() (bool, int, int) {
 	if g.updateOrder == nil {
 		fmt.Println("No update order provided for this graph")
-		return false
+		return false, -1, -1
 	}
 
 	for i := 0; i < len(g.updateOrder)-2; i++ {
-		if !slices.Contains(g.adjList[g.updateOrder[i]], g.updateOrder[i+1]) {
-			return false
+		stepFrom := g.updateOrder[i]
+		stepTo := g.updateOrder[i+1]
+		if !slices.Contains(g.adjList[stepFrom], stepTo) {
+			return false, stepFrom, stepTo
 		}
 	}
 
-	return true
+	return true, -1, -1
 }
 
 func (g *RuleGraph) Print() {
+	isValidStepOrder, stepFrom, stepTo := g.isValidUpdate()
+
 	for key, value := range g.adjList {
 		fmt.Printf("(In: %d, Out: %d)   %d -> %v\n", g.inDegree[key], len(value), key, value)
 	}
+	fmt.Printf("Step Order: %d\n", g.updateOrder)
+
+	fmt.Println("Is valid step order: ", isValidStepOrder)
+	if !isValidStepOrder {
+		fmt.Printf("Failure stepping from node %d to %d\n", stepFrom, stepTo)
+	}
+	fmt.Println("--------------------------------------------")
 
 }
 
@@ -142,17 +153,13 @@ func main() {
 	content := string(file)
 	rules := getPageOrderingRules(content)
 	updates := getUpdates(content)
-
 	graph := NewRuleGraph(rules)
 
-	var result int
 	for _, update := range updates {
 		subgraph := graph.SubGraph(update)
-		if subgraph.isValidUpdateOrder() {
-			result += subgraph.updateOrder[(len(subgraph.updateOrder)-1)/2]
+		isValid, _, _ := subgraph.isValidUpdate()
+		if !isValid {
+			subgraph.Print()
 		}
 	}
-
-	fmt.Println(result)
-
 }
