@@ -54,9 +54,9 @@ func getUpdates(content string) [][]int {
 }
 
 type RuleGraph struct {
-	adjList     map[int][]int
-	inDegree    map[int]int
-	updateOrder []int
+	adjList   map[int][]int
+	inDegree  map[int]int
+	stepOrder []int
 }
 
 func NewRuleGraph(rules [][]int) *RuleGraph {
@@ -95,9 +95,9 @@ func (g *RuleGraph) AddEdge(from int, to int) {
 }
 func (g *RuleGraph) SubGraph(nodes []int) *RuleGraph {
 	subgraph := &RuleGraph{
-		adjList:     make(map[int][]int),
-		inDegree:    make(map[int]int),
-		updateOrder: nodes,
+		adjList:   make(map[int][]int),
+		inDegree:  make(map[int]int),
+		stepOrder: nodes,
 	}
 
 	for _, node := range nodes {
@@ -112,15 +112,15 @@ func (g *RuleGraph) SubGraph(nodes []int) *RuleGraph {
 	return subgraph
 }
 
-func (g *RuleGraph) isValidUpdate() (bool, int, int) {
-	if g.updateOrder == nil {
-		fmt.Println("No update order provided for this graph")
+func (g *RuleGraph) isValidStepOrder() (bool, int, int) {
+	if g.stepOrder == nil {
+		fmt.Println("No step order provided for this graph")
 		return false, -1, -1
 	}
 
-	for i := 0; i < len(g.updateOrder)-2; i++ {
-		stepFrom := g.updateOrder[i]
-		stepTo := g.updateOrder[i+1]
+	for i := 0; i < len(g.stepOrder)-2; i++ {
+		stepFrom := g.stepOrder[i]
+		stepTo := g.stepOrder[i+1]
 		if !slices.Contains(g.adjList[stepFrom], stepTo) {
 			return false, stepFrom, stepTo
 		}
@@ -130,18 +130,22 @@ func (g *RuleGraph) isValidUpdate() (bool, int, int) {
 }
 
 func (g *RuleGraph) Print() {
-	isValidStepOrder, stepFrom, stepTo := g.isValidUpdate()
+	isValidStepOrder, stepFrom, stepTo := g.isValidStepOrder()
 
 	for key, value := range g.adjList {
 		fmt.Printf("(In: %d, Out: %d)   %d -> %v\n", g.inDegree[key], len(value), key, value)
 	}
-	fmt.Printf("Step Order: %d\n", g.updateOrder)
+	fmt.Printf("Step Order: %d\n", g.stepOrder)
 
 	fmt.Println("Is valid step order: ", isValidStepOrder)
 	if !isValidStepOrder {
 		fmt.Printf("Failure stepping from node %d to %d\n", stepFrom, stepTo)
 	}
 	fmt.Println("--------------------------------------------")
+
+}
+
+func (g *RuleGraph) correctStepOrder() {
 
 }
 
@@ -157,7 +161,7 @@ func main() {
 
 	for _, update := range updates {
 		subgraph := graph.SubGraph(update)
-		isValid, _, _ := subgraph.isValidUpdate()
+		isValid, _, _ := subgraph.isValidStepOrder()
 		if !isValid {
 			subgraph.Print()
 		}
