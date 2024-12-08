@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"slices"
 	"strconv"
+	"sync"
+	"time"
 )
 
 func getPageOrderingRules(content string) [][]int {
@@ -181,6 +183,8 @@ func (g *RuleGraph) Print() {
 }
 
 func main() {
+	start := time.Now()
+
 	file, err := os.ReadFile("input.txt")
 	if err != nil {
 		panic(err)
@@ -190,15 +194,35 @@ func main() {
 	updates := getUpdates(content)
 	graph := NewRuleGraph(rules)
 
-	var result int
+	var wg sync.WaitGroup
+	results := make(chan int, len(updates))
 	for _, update := range updates {
-		subgraph := graph.SubGraph(update)
-		isValid, _, _ := subgraph.isValidStepOrder()
-		if !isValid {
-			order := subgraph.TopologicalSort()
-			result += order[(len(update)-1)/2]
-		}
+		wg.Add(1)
+
+		go func(update []int) {
+			defer wg.Done()
+			subgraph := graph.SubGraph(update)
+			isValid, _, _ := subgraph.isValidStepOrder()
+			if !isValid {
+				order := subgraph.TopologicalSort()
+				results <- order[(len(update)-1)/2]
+			}
+		}(update)
+
+	}
+
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	var result int
+	for number := range results {
+		result += number
 	}
 
 	fmt.Println(result)
+
+	elapsed := time.Since(start)
+	fmt.Printf("Execution time: %s\n", elapsed)
 }
