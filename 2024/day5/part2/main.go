@@ -84,7 +84,7 @@ func (g *RuleGraph) AddEdge(from int, to int) {
 	g.AddNode(from)
 	g.AddNode(to)
 
-	if !slices.Contains(g.adjList[from], to) || from == to {
+	if !slices.Contains(g.adjList[from], to) && from != to {
 		g.adjList[from] = append(g.adjList[from], to)
 		g.inDegree[to]++
 	}
@@ -191,7 +191,7 @@ func main() {
 	graph := NewRuleGraph(rules)
 
 	var result int
-	for _, update := range updates {
+	for _, update := range updates[:1] {
 		subgraph := graph.SubGraph(update)
 		isValid, _, _ := subgraph.isValidStepOrder()
 		if !isValid {
