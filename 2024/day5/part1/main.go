@@ -52,6 +52,14 @@ func getUpdates(content string) [][]int {
 	return updates
 }
 
+func generateRuleMap(rules [][]int) map[int][]int {
+	var ruleMap = make(map[int][]int)
+	for _, rule := range rules {
+		ruleMap[rule[0]] = append(ruleMap[rule[0]], rule[1])
+	}
+	return ruleMap
+}
+
 func main() {
 	file, err := os.ReadFile("input.txt")
 	if err != nil {
@@ -60,9 +68,13 @@ func main() {
 	content := string(file)
 
 	rules := getPageOrderingRules(content)
-	fmt.Println(rules)
+	ruleMap := generateRuleMap(rules)
+	fmt.Println(ruleMap)
 
 	updates := getUpdates(content)
-	fmt.Println(updates)
+
+	for _, update := range updates {
+		fmt.Println(update)
+	}
 
 }
