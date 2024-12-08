@@ -3,7 +3,6 @@ package utils
 import (
 	"fmt"
 	"slices"
-	"strconv"
 	"strings"
 )
 
@@ -26,7 +25,7 @@ func ParseLines[T any](lines []string, splitOperator string, parseFunc func(stri
 	return parseResult
 }
 
-func RowsToColumns(arr [][], n int) [][]int {
+func RowsToColumns(arr [][]int, n int) [][]int {
 	columns := make([][]int, n)
 
 	for _, row := range arr {
