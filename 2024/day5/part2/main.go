@@ -191,7 +191,7 @@ func main() {
 	graph := NewRuleGraph(rules)
 
 	var result int
-	for _, update := range updates[:1] {
+	for _, update := range updates {
 		subgraph := graph.SubGraph(update)
 		isValid, _, _ := subgraph.isValidStepOrder()
 		if !isValid {
