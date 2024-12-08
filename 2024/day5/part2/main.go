@@ -129,6 +129,41 @@ func (g *RuleGraph) isValidStepOrder() (bool, int, int) {
 	return true, -1, -1
 }
 
+func (g *RuleGraph) SetStepOrder(order []int) {
+	g.stepOrder = order
+}
+
+func (g *RuleGraph) TopologicalSort() []int {
+	queue := make([]int, 0)
+	inDegree := make(map[int]int)
+	for key, value := range g.inDegree {
+		inDegree[key] = value
+	}
+
+	for key, value := range g.inDegree {
+		if value == 0 {
+			queue = append(queue, key)
+		}
+	}
+
+	var result []int
+	for len(queue) > 0 {
+		node := queue[0]
+		queue = queue[1:]
+		result = append(result, node)
+
+		for _, edge := range g.adjList[node] {
+			inDegree[edge]--
+			if inDegree[edge] == 0 {
+				queue = append(queue, edge)
+			}
+		}
+	}
+
+	g.SetStepOrder(result)
+	return result
+}
+
 func (g *RuleGraph) Print() {
 	isValidStepOrder, stepFrom, stepTo := g.isValidStepOrder()
 
@@ -145,10 +180,6 @@ func (g *RuleGraph) Print() {
 
 }
 
-func (g *RuleGraph) correctStepOrder() {
-
-}
-
 func main() {
 	file, err := os.ReadFile("input.txt")
 	if err != nil {
@@ -159,11 +190,15 @@ func main() {
 	updates := getUpdates(content)
 	graph := NewRuleGraph(rules)
 
+	var result int
 	for _, update := range updates {
 		subgraph := graph.SubGraph(update)
 		isValid, _, _ := subgraph.isValidStepOrder()
 		if !isValid {
-			subgraph.Print()
+			order := subgraph.TopologicalSort()
+			result += order[(len(update)-1)/2]
 		}
 	}
+
+	fmt.Println(result)
 }
