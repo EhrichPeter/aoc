@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sync"
+	"time"
 )
 
 var REFERENCE_STRING = "MAS"
@@ -47,33 +49,67 @@ func checkWord(grid [][]rune, x int, y int, dir [2]int) bool {
 	return true
 }
 
-func countXMAS(grid [][]rune) int {
-	count := 0
-	for i, row := range grid {
-		for j := range row {
-			ignoreDirections := make(map[[2]int]bool)
-			diagonals := 0
-			for _, dir := range directions {
-				if ignoreDirections[dir] {
-					continue
-				}
-				if checkWord(grid, i, j, dir) {
-					inverseDir := [2]int{-dir[0], -dir[1]}
-					ignoreDirections[inverseDir] = true
-					diagonals++
-				}
-			}
-			if diagonals == 2 {
-				count++
-			}
+func checkCross(grid [][]rune, x int, y int) bool {
+
+	ignoreDirections := make(map[[2]int]bool)
+	diagonals := 0
+	for _, dir := range directions {
+		if ignoreDirections[dir] {
+			continue
+		}
+		if checkWord(grid, x, y, dir) {
+			inverseDir := [2]int{-dir[0], -dir[1]}
+			ignoreDirections[inverseDir] = true
+			diagonals++
 		}
 	}
-	return count
+	if diagonals == 2 {
+		return true
+	}
 
+	return false
+}
+
+func countXMAS(grid [][]rune) int {
+	count := 0
+
+	results := make(chan bool)
+	var wg sync.WaitGroup
+
+	for i, row := range grid {
+		for j := range row {
+			wg.Add(1)
+
+			go func(i, j int) {
+				defer wg.Done()
+				if checkCross(grid, j, i) {
+					results <- true
+				} else {
+					results <- false
+				}
+			}(i, j)
+		}
+	}
+
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	for res := range results {
+		if res {
+			count++
+		}
+	}
+
+	return count
 }
 
 func main() {
+	start := time.Now()
 	grid := readGrid("input.txt")
 	count := countXMAS(grid)
 	fmt.Println(count)
+	elapsed := time.Since(start)
+	fmt.Printf("Execution time: %s\n", elapsed)
 }
