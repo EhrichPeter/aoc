@@ -77,7 +77,7 @@ func (g *RuleGraph) Populate(rules [][]int) {
 }
 
 func (g *RuleGraph) AddNode(node int) {
-	if _, exists := g.adjList[node]; !exists {
+	if _, ok := g.adjList[node]; !ok {
 		g.adjList[node] = make([]int, 0)
 	}
 }
@@ -91,7 +91,7 @@ func (g *RuleGraph) AddEdge(from int, to int) {
 		g.inDegree[to]++
 	}
 
-	if _, exists := g.inDegree[from]; !exists {
+	if _, ok := g.inDegree[from]; !ok {
 		g.inDegree[from] = 0
 	}
 }
@@ -103,10 +103,10 @@ func (g *RuleGraph) SubGraph(nodes []int) *RuleGraph {
 	}
 
 	for _, node := range nodes {
-		if edges, exists := g.adjList[node]; exists {
-			for _, edgeNode := range edges {
-				if slices.Contains(nodes, edgeNode) {
-					subgraph.AddEdge(node, edgeNode)
+		if neighbors, ok := g.adjList[node]; ok {
+			for _, neighbor := range neighbors {
+				if slices.Contains(nodes, neighbor) {
+					subgraph.AddEdge(node, neighbor)
 				}
 			}
 		}
